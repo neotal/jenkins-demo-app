@@ -16,15 +16,16 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Install Dependencies & Test (Node.js)') {
+            agent {
+                docker {
+                    image 'node:18'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
             steps {
                 echo '📦 Installing Node.js dependencies...'
                 sh 'npm install'
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
                 echo '✅ Running tests...'
                 sh 'npm test || echo "No tests found, skipping..."'
             }

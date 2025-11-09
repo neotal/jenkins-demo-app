@@ -1,0 +1,89 @@
+{
+  "name": "jenkins-demo-app",
+  "version": "1.0.0",
+  "description": "Demo app with Jenkins CI/CD",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
+EOF
+
+# צרו server.js
+cat > server.js << 'EOF'
+const express = require('express');
+const app = express();
+const PORT = 3000;
+
+app.get('/', (req, res) => {
+    res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Jenkins CI/CD Demo</title>
+            <style>
+                body { font-family: Arial; text-align: center; padding: 50px; }
+                h1 { color: #2c3e50; }
+                .info { background: #3498db; color: white; padding: 20px; border-radius: 10px; }
+            </style>
+        </head>
+        <body>
+            <h1>🚀 Jenkins CI/CD Demo</h1>
+            <div class="info">
+                <h2>Application is running!</h2>
+                <p>Built and deployed automatically by Jenkins</p>
+                <p>Build: ${process.env.BUILD_NUMBER || 'local'}</p>
+            </div>
+        </body>
+        </html>
+    `);
+});
+
+app.get('/health', (req, res) => {
+    res.json({ status: 'healthy', timestamp: new Date() });
+});
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+EOF
+
+# צרו test.js
+cat > test.js << 'EOF'
+console.log('Running tests...');
+
+// Test 1: Check if package.json exists
+const fs = require('fs');
+if (fs.existsSync('package.json')) {
+    console.log('✓ Test 1 passed: package.json exists');
+} else {
+    console.error('✗ Test 1 failed: package.json missing');
+    process.exit(1);
+}
+
+// Test 2: Check if server.js exists
+if (fs.existsSync('server.js')) {
+    console.log('✓ Test 2 passed: server.js exists');
+} else {
+    console.error('✗ Test 2 failed: server.js missing');
+    process.exit(1);
+}
+
+// Test 3: Validate package.json
+try {
+    const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+    if (pkg.name && pkg.version) {
+        console.log('✓ Test 3 passed: package.json is valid');
+    } else {
+        throw new Error('Invalid package.json');
+    }
+} catch (error) {
+    console.error('✗ Test 3 failed:', error.message);
+    process.exit(1);
+}
+
+console.log('\n✅ All tests passed!');

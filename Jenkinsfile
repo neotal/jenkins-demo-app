@@ -17,19 +17,20 @@ pipeline {
         }
 
         stage('Install Dependencies & Test (Node.js)') {
-            agent {
-                docker {
-                    image 'node:18'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock'
-                }
-            }
-            steps {
-                echo '📦 Installing Node.js dependencies...'
-                sh 'npm install'
-                echo '✅ Running tests...'
-                sh 'npm test || echo "No tests found, skipping..."'
-            }
+    agent {
+        docker {
+            image 'node:18'
+            args '-v $PWD:/app -w /app'
         }
+    }
+    steps {
+        echo "📦 Installing Node.js dependencies..."
+        sh 'ls -la'   // תראי אם package.json באמת קיים
+        sh 'npm install'
+        sh 'npm test || true'
+    }
+}
+
 
         stage('Build Docker Image') {
             steps {
